@@ -6,8 +6,6 @@
     <title>Bug Bounty Checklist for Web Apps</title>
   
     <style>
-
-
     :root {
         --bg-color: #ffffff;
         --text-color: #333333;
@@ -33,57 +31,59 @@
         margin: 0;
         padding: 0;
         display: flex;
+        flex-direction: column;
         min-height: 100vh;
         background-color: var(--bg-color);
         color: var(--text-color);
     }
 
+    /* Header styles */
+
 
     /* Parent container for sidebar and content */
     .main-container {
         display: flex;
-         height: 100vh;
-        overflow-y: hidden; /* Prevent scroll for the main-container */
+        flex: 1; /* Allow the container to grow and shrink */
+        overflow-x: hidden; /* Prevent horizontal scroll */
     }
 
     /* Progress bar container fixed at the top */
     #progress-bar-container {
-        background-color: var(--progress-bg);
+        background-color: transparent;
         border-radius: 0 0 10px 10px;
         overflow: hidden;
-        margin-bottom: 0px; /* Remove margin for top alignment */
         position: fixed;
-        top: 0;
+        top: 0px; /* Below the header */
         left: 0;
         right: 0;
-        z-index: 1000; /* Ensure it stays above other content */
+        z-index: 1000;
+        height: 40px; /* Fixed height for the progress bar */
     }
 
     /* Sidebar styles - fixed and full height */
-     #sidebar {
-        background-color: var(--sidebar-bg);
-        color: var(--sidebar-text);
-        width: 250px;
-        padding: 20px;
-         overflow-y: auto; /* Enable sidebar scroll */
-        transition: all 0.3s ease;
-        height: 100vh;
-         position: fixed; /* Make sidebar fixed */
-        top: 40px; /* Adjust to match progress bar height */
-         bottom: 0; /* Make sidebar extend to bottom */
-    }
+    #sidebar {
+    background-color: var(--sidebar-bg);
+    color: var(--sidebar-text);
+    width: 250px;
+    padding: 20px;
+    overflow-y: auto;
+    transition: all 0.3s ease;
+    height: calc(110vh - 120px);
+    position: fixed;
+    top: 35px;
+    bottom: 5px;
+}
 
-     /* Content area styles - use padding on main-container */
+    /* Content area styles */
     #content {
         flex: 1;
         padding: 20px;
-         overflow-y: auto;
-        margin-left: 280px; /* Sidebar width */
-        padding-top:60px; /* 40px progress bar + 20px some spacing */
-         box-sizing: border-box;
-        height: calc(100vh - 40px); /* content will fill the remaining viewport*/
+        margin-left: 300px;
+        overflow-y: auto;
+        padding-top: 90px; /* 50px progress bar + 40px header */
+        padding-bottom: 50px; /* Space for footer */
+        box-sizing: border-box;
     }
-
 
     /* Sidebar heading styles */
     #sidebar h2 {
@@ -116,63 +116,91 @@
     /* Progress bar styles */
     #progress-bar {
         width: 0;
-        height: 40px; /* Match progress-bar-container height */
+        height: 40px; 
         background-color: var(--progress-fill);
         text-align: center;
-        line-height: 40px; /* Match progress-bar-container height */
+        line-height: 40px;
         color: white;
         transition: width 0.5s ease-in-out;
     }
+
+    #menu-toggle {
+        display: none;
+        background: none;
+        border: none;
+        color: var(--text-color);
+        font-size: 24px;
+        cursor: pointer;
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        z-index: 1001; /* Above the progress bar */
+    }
+
+    #dark-mode-toggle {
+        background: none;
+        border: none;
+        color: var(--text-color);
+        font-size: 24px;
+        cursor: pointer;
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        z-index: 1001; /* Above the progress bar */
+    }
+
+    /* Footer styles */
+ 
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .main-container {
+            flex-direction: column;
+        }
+
+        #sidebar {
+            width: 100%;
+            max-height: 320px;
+            height: auto; /* Let the content decide the height */
+            overflow-y: auto;
+            position: absolute; /* Changed from fixed for better behavior on small screens */
+            top: 90px; /* Adjust for header and progress bar */
+            left: 0;
+            transition: all 0.3s ease;
+            z-index: 1002; /* Ensure it's above the content when toggled */
+        }
+
+        #content {
+            margin-left: 0; /* Remove sidebar margin */
+            padding-top: 140px; /* Account for sidebar toggle space */
+        }
+
         #menu-toggle {
-            display: none;
-            background: none;
-            border: none;
-            color: var(--text-color);
-            font-size: 24px;
-            cursor: pointer;
+            display: block;
+        }
+
+        /* Sidebar toggle functionality */
+        #sidebar.collapsed {
+            max-height: 0;
+            overflow: hidden;
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+
+        .sidebar-toggle {
+            display: block;
             position: fixed;
-            top: 10px;
-            left: 10px;
-            z-index: 1000;
+            top: 55px; /* Below the header but above the progress bar */
+            left: 15px;
+            z-index: 1003;
         }
 
-        #dark-mode-toggle {
-            background: none;
-            border: none;
-            color: var(--text-color);
-            font-size: 24px;
-            cursor: pointer;
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            z-index: 1000;
+        /* Adjust content for smaller screens */
+        #content {
+            padding-top: 130px; /* Adjust for sidebar toggle and header */
         }
-
-        @media (max-width: 768px) {
-            body {
-                flex-direction: column;
-            }
-
-            #sidebar {
-                width: 100%;
-                max-height: 300px;
-                overflow-y: auto;
-            }
-
-            #content {
-                width: 100%;
-            }
-
-            #menu-toggle {
-                display: block;
-            }
-
-            #sidebar.collapsed {
-                max-height: 60px;
-                overflow: hidden;
-            }
-        }
-    </style>
+    }
+</style>
 </head>
 <body>
     <button id="menu-toggle">☰</button>
@@ -775,33 +803,13 @@
     <li><input type="checkbox" /> `hostname:example.com`</li>
     <li><input type="checkbox" /> `hostname:example.com,example.org`</li>
 </ul>
-<h4 id="net">Net:</h4>
-<p>Find devices based on an IP address or /x CIDR.</p>
-<ul>
-    <li><input type="checkbox" /> `net:210.214.0.0/16`</li>
-</ul>
-<h4 id="organization">Organization</h4>
-<ul>
-    <li><input type="checkbox" />`org:microsoft`</li>
-    <li><input type="checkbox" />`org:"United States Department"`</li>
-</ul>
+
 
 <h4 id="autonomous-system-number">Autonomous System Number (ASN)</h4>
 <ul>
     <li><input type="checkbox" />`asn:ASxxxx`</li>
 </ul>
-<h4 id="operating-system">Operating System:</h4>
-<ul>
-    <li><input type="checkbox" />`os:"windows 7"`</li>
-</ul>
-<h4 id="port">Port:</h4>
-<ul>
-    <li><input type="checkbox" />`proftpd port:21`</li>
-</ul>
-<h4 id="before-after">Before/After:</h4>
-<ul>
-    <li><input type="checkbox" />`apache after:22/02/2009 before:14/3/2010`</li>
-</ul>
+
 
 <h4 id="ssl-tls-certificates">SSL/TLS Certificates</h4>
 <ul>
@@ -838,22 +846,7 @@
 
 
 
-<h4 id="product">Product</h4>
-<ul>
-    <li><input type="checkbox" />`product:apache`</li>
-    <li><input type="checkbox" />`product:nginx`</li>
-    <li><input type="checkbox" />`product:android`</li>
-    <li><input type="checkbox" />`product:chromecast`</li>
-</ul>
-<h4 id="cpe">Customer Premises Equipment (CPE)</h4>
-<ul>
-    <li><input type="checkbox" /> `cpe:apple`</li>
-    <li><input type="checkbox" />`cpe:microsoft`</li>
-    <li><input type="checkbox" />`cpe:nginx`</li>
-    <li><input type="checkbox" />`cpe:cisco`</li>
-</ul>
-
-<h2 id="api-security">API Security</h2>
+<h4 id="api-security">API Security</h4>
         <ul>
             <li><input type="checkbox" /> To change versions: <code>api/v3/login</code> → <code>api/v1/login</code></li>
             <li><input type="checkbox" /> Check other AuthN endpoints: <code>/api/mobile/login</code> → <code>/api/v3/login</code> <code>/api/magic_link</code></li>
@@ -923,6 +916,21 @@
             <li><input type="checkbox" /><code>server: microsoft</code></li>
             <li><input type="checkbox" /><code>server: cisco-ios</code></li>
         </ul>
+<h4 id="cpe">Customer Premises Equipment (CPE)</h4>
+<ul>
+    <li><input type="checkbox" /> `cpe:apple`</li>
+    <li><input type="checkbox" />`cpe:microsoft`</li>
+    <li><input type="checkbox" />`cpe:nginx`</li>
+    <li><input type="checkbox" />`cpe:cisco`</li>
+</ul>
+
+<h4 id="os">Operating System</h4>
+<ul>
+    <li><input type="checkbox" /> `os:windows`</li>
+    <li><input type="checkbox" /> `os:linux`</li>
+    <li><input type="checkbox" /> `os:macos`</li>
+    <li><input type="checkbox" /> `os:ios`</li>
+</ul>
 
         <!-- Add more content sections here -->
 
