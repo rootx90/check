@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bug Bounty Checklist for Web Apps</title>
+    <style>
+    body {
+        font-family: sans-serif;
+        line-height: 1.6;
+        background-color: #f8f8f8;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        height: 100vh;
+    }
+
+    #sidebar {
+        position: fixed;
+        width: 280px;
+        height: 100vh;
+        background-color: #333;
+        color: #fff;
+        padding: 20px;
+        overflow-y: auto;
+        border-right: 1px solid #555;
+        box-sizing: border-box;
+    }
+
+    #content {
+        margin-left: 280px;
+        padding: 20px;
+        box-sizing: border-box;
+        background-color: #f2f2f2;
+    }
+
+    h1, h2, h3 {
+        color: #333;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 10px;
+    }
+
+    h3 {
+        color: #555;
+    }
+
+    a {
+        color: #007bff;
+        text-decoration: none;
+    }
+
+    a:hover {
+        text-decoration: underline;
+    }
+
+    #sidebar a {
+        color: #ddd;
+    }
+
+    code {
+        background-color: #f0f0f0;
+        padding: 2px 4px;
+        border-radius: 4px;
+        font-family: monospace;
+        white-space: pre-wrap;
+    }
+
+    pre {
+        background-color: #f9f9f9;
+        padding: 10px;
+        border-radius: 4px;
+        overflow-x: auto;
+        margin-bottom: 5px;
+    }
+
+    #content ol {
+        list-style-type: decimal;
+        margin-left: 20px;
+    }
+
+    #content li {
+        margin-bottom: 10px;
+    }
+
+    p, ul {
+        margin-bottom: 10px;
+    }
+</style>
+</head>
+
+<body>
+    <div id="wrapper">
+        <div id="sidebar">
+            <div id="progress-bar-container">
+                <div id="progress-bar"></div>
+            </div>
+            <h2 id="checklist-header">The Checklist</h2>
+            <div id="sidebar-content">
+                <ul id="sidebar-list">
+                    <li><a href="#introduction">Introduction</a></li>
+                    <li><a href="#general-principles">General Principles</a>
+                        <ul>
+                            <li><a href="#information-gathering">Information Gathering</a></li>
+                            <li><a href="#attack-surface-mapping">Attack Surface Mapping</a></li>
+                            <li><a href="#vulnerability-scanning">Vulnerability Scanning</a></li>
+                        </ul>
+                    </li>
+                      <li><a href="#configuration-management">Configuration Management</a>
+                    </li>
+                    <li><a href="#secure-transmission">Secure Transmission</a>
+                    </li>
+                    <li><a href="#authentication-authorization">Authentication and Authorization</a>
+                        <ul>
+                            <li><a href="#authentication-testing">Authentication Testing</a></li>
+                            <li><a href="#authorization-testing">Authorization Testing</a></li>
+                            <li><a href="#session-management">Session Management</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#oauth-checklist">OAuth Checklist</a></li>
+
+                    <li><a href="#data-validation">Data Validation</a>
+                         <ul>
+                            <li><a href="#xss-attacks">XSS Attacks</a></li>
+                            <li><a href="#sql-injection">SQL Injection</a></li>
+                            <li><a href="#command-injection">Command Injection</a></li>
+                            <li><a href="#lfi-rfi">Local and Remote File Inclusion</a></li>
+                           <li><a href="#denial-of-service">Denial of Service</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#business-logic">Business Logic</a>
+                        <ul>
+                            <li><a href="#idor">Insecure Direct Object References</a></li>
+                            <li><a href="#rate-limiting">Rate Limiting Issues</a></li>
+                            <li><a href="#payment-handling">Payment Handling Flaws</a></li>
+                        </ul>
+                    </li>
+                     <li><a href="#cryptography">Cryptography</a>
+                     </li>
+                    <li><a href="#risky-functionality">Risky Functionality</a>
+                         <ul>
+                            <li><a href="#file-uploads">File Uploads</a></li>
+                             <li><a href="#card-payment">Card Payment</a></li>
+                        </ul>
+                    </li>
+                     <li><a href="#html5">HTML 5</a>
+                     </li>
+                    <li><a href="#other-checks">Other Checks</a>
+                        <ul>
+                            <li><a href="#security-headers">Security Headers</a></li>
+                            <li><a href="#captcha-handling">Captcha Handling</a></li>
+                            <li><a href="#cors-bypass">CORS Bypass</a></li>
+                            <li><a href="#ssrf-testing">SSRF Testing</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div id="content">
+            <h2 id="introduction">Introduction</h2>
+            <p>This is a detailed checklist for bug bounty hunting on web applications. It is designed to help you systematically
+                explore and test for vulnerabilities.</p>
+
+            <h2 id="general-principles">General Principles</h2>
+
+            <h3 id="information-gathering">Information Gathering</h3>
+            <ul>
+                 <li><input type="checkbox" /> Manually explore the site.</li>
+                <li><input type="checkbox" /> Spider/crawl for missed or hidden content.</li>
+                <li><input type="checkbox" /> Check for files that expose content, such as robots.txt, sitemap.xml, .DS_Store.</li>
+                <li><input type="checkbox" /> Check the caches of major search engines for publicly accessible sites.</li>
+                <li><input type="checkbox" /> Check for differences in content based on User Agent.</li>
+                <li><input type="checkbox" /> Perform Web Application Fingerprinting.</li>
+                <li><input type="checkbox" /> Identify technologies used.</li>
+                 <li><input type="checkbox" /> Identify user roles.</li>
+                <li><input type="checkbox" /> Identify application entry points.</li>
+                <li><input type="checkbox" /> Identify client-side code.</li>
+                <li><input type="checkbox" /> Identify multiple versions/channels.</li>
+                 <li><input type="checkbox" /> Identify co-hosted and related applications.</li>
+                <li><input type="checkbox" /> Identify all hostnames and ports.</li>
+                <li><input type="checkbox" /> Identify third-party hosted content.</li>
+            </ul>
+
+            <h3 id="attack-surface-mapping">Attack Surface Mapping</h3>
+            <ul>
+                <li><input type="checkbox" /> Map all entry points of the application.</li>
+                <li><input type="checkbox" /> Identify all web services and APIs.</li>
+                <li><input type="checkbox" /> List all used technologies.</li>
+                <li><input type="checkbox" /> Examine user roles and permissions.</li>
+            </ul>
+
+            <h3 id="vulnerability-scanning">Vulnerability Scanning</h3>
+            <ul>
+                <li><input type="checkbox" /> Perform basic vulnerability scans with automated tools.</li>
+                <li><input type="checkbox" /> Analyze scan results carefully.</li>
+                <li><input type="checkbox" /> Use tools like Burp Suite for manual checks.</li>
+            </ul>
+             <h2 id="configuration-management">Configuration Management</h2>
+            <ul>
+                 <li><input type="checkbox" /> Check for commonly used application and administrative URLs.</li>
+                <li><input type="checkbox" /> Check for old, backup and unreferenced files.</li>
+                 <li><input type="checkbox" /> Check HTTP methods supported and Cross Site Tracing (XST).</li>
+                <li><input type="checkbox" /> Test file extensions handling.</li>
+                <li><input type="checkbox" /> Test for security HTTP headers.</li>
+                 <li><input type="checkbox" /> Test for policies.</li>
+                 <li><input type="checkbox" /> Test for non-production data in live environment, and vice-versa.</li>
+                <li><input type="checkbox" /> Check for sensitive data in client-side code.</li>
+            </ul>
+               <h2 id="secure-transmission">Secure Transmission</h2>
+            <ul>
+                 <li><input type="checkbox" /> Check SSL Version, Algorithms, Key length.</li>
+                <li><input type="checkbox" /> Check for Digital Certificate Validity.</li>
+                <li><input type="checkbox" /> Check credentials only delivered over HTTPS.</li>
+                <li><input type="checkbox" /> Check that the login form is delivered over HTTPS.</li>
+                <li><input type="checkbox" /> Check session tokens only delivered over HTTPS.</li>
+                 <li><input type="checkbox" /> Check if HTTP Strict Transport Security (HSTS) in use.</li>
+            </ul>
+
+            <h2 id="authentication-authorization">Authentication and Authorization</h2>
+
+            <h3 id="authentication-testing">Authentication Testing</h3>
+            <ul>
+                 <li><input type="checkbox" /> Test for user enumeration.</li>
+                <li><input type="checkbox" /> Test for authentication bypass.</li>
+                <li><input type="checkbox" /> Test for bruteforce protection.</li>
+                <li><input type="checkbox" /> Test password quality rules.</li>
+                 <li><input type="checkbox" /> Test remember me functionality.</li>
+                <li><input type="checkbox" /> Test for autocomplete on password forms/input.</li>
+                 <li><input type="checkbox" /> Test password reset and/or recovery.</li>
+                <li><input type="checkbox" /> Test password change process.</li>
+                  <li><input type="checkbox" /> Test CAPTCHA.</li>
+                <li><input type="checkbox" /> Test multi factor authentication.</li>
+                 <li><input type="checkbox" /> Test for logout functionality presence.</li>
+                <li><input type="checkbox" /> Test for cache management on HTTP.</li>
+                <li><input type="checkbox" /> Test for default logins.</li>
+                 <li><input type="checkbox" /> Test for user-accessible authentication history.</li>
+                 <li><input type="checkbox" /> Test for out-of channel notification of account lockouts and successful password changes.</li>
+                 <li><input type="checkbox" /> Test for consistent authentication across applications with shared authentication schema / SSO.</li>
+                 <li>
+        Input validation
+        <ul>
+            <li><input type="checkbox" /> Space manipulation & Using Dots & Case sensitivity check</li>
+            <li><input type="checkbox" /> Checking allowed characters (`<`, `>`, `"`, `'`)</li>
+            <li><input type="checkbox" /> Register using `myemail%00@email.com` or (%0d, %0a)</li>
+            <li>
+                <input type="checkbox" /> Register using `myemail@target.com`
+                <ul>
+                    <li>Response manipulation from `401 Unauthorized` to `200 Ok` or `302 Found`</li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+    <li>
+        Analysis
+        <ul>
+            <li><input type="checkbox" /> Check `.js` files on the page, such as `login.js`</li>
+            <li>
+                <input type="checkbox" /> Check the parameters used on the endpoint
+                <ul>
+                    <li>Might be listed in the source or `js`</li>
+                </ul>
+            </li>
+            <li>
+                <input type="checkbox" /> Checking the Mobile Endpoint
+                <ul>
+                    <li>Does it have the same protection as the web app?</li>
+                    <li>How does it treat Unicode characters?</li>
+                </ul>
+            </li>
+            <li>
+                <input type="checkbox" /> Google Dorks
+                <ul>
+                    <li>`site:example.com inurl:register inurl:&`</li>
+                    <li>`site:example.com inurl:signup inurl:&`</li>
+                    <li>`site:example.com inurl:join inurl:&`</li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+    <li>
+        Misc
+        <ul>
+            <li>
+                <input type="checkbox" /> Email Takeover
+                <ul>
+                    <li>Register an email, before confirming, change the email. Check if the new confirmation email is sent to the first registered email.</li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+            </ul>
+            
+
+            <h3 id="authorization-testing">Authorization Testing</h3>
+            <ul>
+                <li><input type="checkbox" /> Test access controls using multiple accounts.</li>
+                <li><input type="checkbox" /> Check for insecure access control methods.</li>
+                <li><input type="checkbox" /> Verify role-based access is correctly enforced.</li>
+                <li><input type="checkbox" /> Test the scope of cookies.</li>
+            </ul>
+
+            <h3 id="session-management">Session Management</h3>
+            <ul>
+                <li><input type="checkbox" /> Verify session handling.</li>
+                <li><input type="checkbox" /> Test tokens for predictability.</li>
+                <li><input type="checkbox" /> Examine insecure transmission of tokens.</li>
+                <li><input type="checkbox" /> Check token disclosure in logs.</li>
+                <li><input type="checkbox" /> Check session termination.</li>
+                <li><input type="checkbox" /> Test session fixation.</li>
+                <li><input type="checkbox" /> Verify CSRF protection.</li>
+                <li><input type="checkbox" /> Check cookie expiration times.</li>
+                <li><input type="checkbox" /> Look for HttpOnly and Secure flags.</li>
+                 <li><input type="checkbox" /> Establish how session management is handled in the application.</li>
+                  <li><input type="checkbox" /> Check session tokens for cookie flags.</li>
+                <li><input type="checkbox" /> Check session cookie scope.</li>
+                 <li><input type="checkbox" /> Check session cookie duration.</li>
+                 <li><input type="checkbox" /> Check session termination after a maximum lifetime.</li>
+                  <li><input type="checkbox" /> Check session termination after relative timeout.</li>
+                <li><input type="checkbox" /> Check session termination after logout.</li>
+                   <li><input type="checkbox" /> Test to see if users can have multiple simultaneous sessions.</li>
+                   <li><input type="checkbox" /> Test session cookies for randomness.</li>
+                   <li><input type="checkbox" /> Confirm that new session tokens are issued on login, role change and logout.</li>
+                  <li><input type="checkbox" /> Test for consistent session management across applications with shared session management.</li>
+                    <li><input type="checkbox" /> Test for session puzzling.</li>
+                    <li><input type="checkbox" /> Test for CSRF and clickjacking.</li>
+
+            </ul>
+             <h3 id="authorization">Authorization</h3>
+            <ul>
+               <li><input type="checkbox" /> Test for path traversal.</li>
+                 <li><input type="checkbox" /> Test for bypassing authorization schema.</li>
+                <li><input type="checkbox" /> Test for vertical Access control problems.</li>
+                 <li><input type="checkbox" /> Test for horizontal Access control problems.</li>
+                   <li><input type="checkbox" /> Test for missing authorization.</li>
+
+            </ul>
+            <h2 id="oauth-checklist">OAuth Checklist</h2>
+
+<h3>OAuth Roles</h3>
+<ul>
+    <li><input type="checkbox" /> Resource Owner → User</li>
+    <li><input type="checkbox" /> Resource Server → Twitter</li>
+    <li><input type="checkbox" /> Client Application → Twitterdeck.com</li>
+    <li><input type="checkbox" /> Authorization Server → Twitter</li>
+    <li><input type="checkbox" /> client_id → Twitterdeck ID (This is a public, non-secret unique identifier.)</li>
+    <li><input type="checkbox" /> client_secret → Secret Token known to the Twitter and Twitterdeck to generate <code>access_tokens</code>.</li>
+    <li><input type="checkbox" /> response_type → Defines the token type e.g (code, token, etc.)</li>
+    <li><input type="checkbox" /> scope → The requested level of access Twitterdeck wants.</li>
+    <li><input type="checkbox" /> redirect_uri → The URL user is redirected to after the authorization is complete.</li>
+    <li><input type="checkbox" /> state → Main CSRF protection in OAuth, can persist data between the user being directed to the authorization server and back again.</li>
+    <li><input type="checkbox" /> grant_type → Defines the <code>grant_type</code> and the returned token type.</li>
+    <li><input type="checkbox" /> code → The authorization code twitter generated, will be like <code>?code=</code>, the code is used with client_id and client_secret to fetch an <code>access_token</code>.</li>
+    <li><input type="checkbox" /> access_token → The token twitterdeck uses to make API requests on behalf of the user.</li>
+    <li><input type="checkbox" /> refresh_token → Allows an application to obtain a new <code>access_token</code> without prompting the user.</li>
+</ul>
+
+<h3>Code Flaws</h3>
+<ul>
+    <li><input type="checkbox" /> Re-Using the code.</li>
+    <li><input type="checkbox" /> Code Predict/Bruteforce and Rate-limit?</li>
+    <li><input type="checkbox" /> Is the code for application X valid for application Y?</li>
+</ul>
+
+<h3>Redirect_uri Flaws</h3>
+<ul>
+    <li><input type="checkbox" /> URL isn't validated at all: <code>?redirect_uri=https://attacker.com</code></li>
+    <li><input type="checkbox" /> Subdomains allowed (Subdomain Takeover or Open redirect on those subdomains): <code>?redirect_uri=https://sub.twitterdeck.com</code></li>
+    <li><input type="checkbox" /> Host is validated, path isn't (Chain open redirect): <code>?redirect_uri=https://twitterdeck.com/callback?redirectUrl=https://evil.com</code></li>
+    <li><input type="checkbox" /> Host is validated, path isn't (Referer leakages): Include external content on HTML page and leak code via <code>Referer</code>.</li>
+    <li><input type="checkbox" /> Weak Regexes:
+        <ul>
+            <li><input type="checkbox" /><code>?redirect_uri=https://twitterdeck.com.evil.com</code></li>
+            <li><input type="checkbox" /><code>?redirect_uri=https://twitterdeck.com%252eevil.com</code></li>
+            <li><input type="checkbox" /><code>?redirect_uri=https://twitterdeck.com//evil.com/</code></li>
+            <li><input type="checkbox" /><code>?redirect_uri=https://twitterdeck.com%09evil.com</code></li>
+        </ul>
+    </li>
+    <li><input type="checkbox" /> Bruteforcing the <a href="https://pastebin.com/raw/b7HsBvZ7">URL encoded chars</a> after host: <code>?redirect_uri=https://twitterdeck.com§FUZZ§</code></li>
+    <li><input type="checkbox" /> Bruteforcing the <a href="https://github.com/danielmiessler/SecLists/blob/master/Discovery/Web-Content/raft-large-words.txt">keywords</a> whitelist after host (or on any whitelist open redirect filter): <code>?redirect_uri=https://§FUZZ§.com</code>
+        <ul>
+            <li><input type="checkbox" /> Imagine "twitter" keyword is allowed so we use: <code>?redirect_uri=https://eviltwitter.com</code></li>
+        </ul>
+    </li>
+    <li><input type="checkbox" /> URI validation in place: use typical open redirect payloads.</li>
+</ul>
+
+<h3>State Flaws</h3>
+<ul>
+    <li><input type="checkbox" /> Missing <code>State</code> parameter? (CSRF)</li>
+    <li><input type="checkbox" /> Predictable <code>State</code> parameter?</li>
+    <li><input type="checkbox" /> Is <code>State</code> parameter being verified?</li>
+    <li>
+        <input type="checkbox" /> What is the CSRF workflow in case of <code>state</code> problems?
+        <ul>
+            <li>Attacker generate a valid <code>authorization_code</code> link for himself and doesn't use it (doesn't forward the request)</li>
+            <li>Attacker sends the link to the logged-in victim, and if the victim opens the link, attacker's OAuth account will be linked to victim's.</li>
+        </ul>
+    </li>
+</ul>
+
+<h3>Evil App</h3>
+<ul>
+    <li><input type="checkbox" /> Race condition when <code>code</code> is exchanged for <code>access_token</code></li>
+    <li><input type="checkbox" /> Race condition when <code>refresh_token</code> is exchanged for <code>access_token</code></li>
+    <li><input type="checkbox" /> If user revocates access, will code be also revocated?</li>
+</ul>
+
+<h3>Misc</h3>
+<ul>
+    <li><input type="checkbox" /> Is <code>client_secret</code> validated?</li>
+    <li><input type="checkbox" /> Are <code>client_secret</code>, <code>access_token</code>, <code>refresh_token</code> leaking somewhere?</li>
+    <li>
+        <input type="checkbox" /> Pre ATO using facebook phone-number signup
+        <ul>
+            <li>Register on facebook using a phone-number and it settings add the victim's email address (do not verify it).</li>
+            <li>Use the facebook OAuth on the target website, it might be possible that the application doesn't verify the victim's email.</li>
+            <li><a href="https://akshanshjaiswal.medium.com/pre-access-to-victims-account-via-facebook-signup-60219e9e381d">Reference</a></li>
+        </ul>
+    </li>
+    <li>
+        <input type="checkbox" /> No email validation Pre ATO
+        <ul>
+            <li>Register as the victim with his email and your desired password.</li>
+            <li>The victim then tries to login using OAuth such as google or facebook.</li>
+            <li>The application queries the database and respond with: <code>email already exists.</code> and links their account to the attackers.</li>
+            <li>If there is no un-link option on the application, the attacker can always login on behalf of the user using OAuth even if they reset password.</li>
+        </ul>
+    </li>
+</ul>
+
+<h3>References</h3>
+<ul>
+    <li><a href="https://github.com/hackerscrolls/SecurityTips/blob/master/MindMaps/OAuth_bugs.png">HackerScroll</a></li>
+    <li><a href="https://medium.com/a-bugz-life/the-wondeful-world-of-oauth-bug-bounty-edition-af3073b354c1">The wonderful world of OAuth</a></li>
+    <li><a href="https://pentester.land/list-of-bug-bounty-writeups.html">Pentester.land write ups</a></li>
+</ul>
+
+             <h2 id="data-validation">Data Validation</h2>
+
+            <h3 id="xss-attacks">XSS Attacks</h3>
+            <ul>
+                <li><input type="checkbox" /> Fuzz all request parameters for XSS.</li>
+                <li><input type="checkbox" /> Identify reflected XSS vectors.</li>
+                <li><input type="checkbox" /> Test for stored XSS.</li>
+                <li><input type="checkbox" /> Check HTTP header injections.</li>
+                <li><input type="checkbox" /> Test arbitrary redirects.</li>
+                 <li><input type="checkbox" /> Test for DOM based Cross Site Scripting.</li>
+                <li><input type="checkbox" /> Test for Cross Site Flashing.</li>
+            </ul>
+
+            <h3 id="sql-injection">SQL Injection</h3>
+            <ul>
+                <li><input type="checkbox" /> Test for SQL injection vulnerabilities.</li>
+                <li><input type="checkbox" /> Use SQL injection payloads in input parameters.</li>
+                <li><input type="checkbox" /> Look for SQL error messages.</li>
+            </ul>
+
+            <h3 id="command-injection">Command Injection</h3>
+            <ul>
+                 <li><input type="checkbox" /> Test for HTML Injection.</li>
+                 <li><input type="checkbox" /> Test for LDAP Injection.</li>
+                 <li><input type="checkbox" /> Test for ORM Injection.</li>
+                <li><input type="checkbox" /> Test for XML Injection.</li>
+                <li><input type="checkbox" /> Test for XXE Injection.</li>
+                <li><input type="checkbox" /> Test for SSI Injection.</li>
+                <li><input type="checkbox" /> Test for XPath Injection.</li>
+                <li><input type="checkbox" /> Test for XQuery Injection.</li>
+                <li><input type="checkbox" /> Test for IMAP/SMTP Injection.</li>
+                <li><input type="checkbox" /> Test for Code Injection.</li>
+                  <li><input type="checkbox" /> Test for Expression Language Injection.</li>
+                <li><input type="checkbox" /> Test for OS command injection.</li>
+                <li><input type="checkbox" /> Use specific command injection payloads.</li>
+            </ul>
+
+
+            <h3 id="lfi-rfi">Local and Remote File Inclusion</h3>
+             <ul>
+                 <li><input type="checkbox" /> Test for Overflow (Stack, Heap and Integer).</li>
+                 <li><input type="checkbox" />  Test for Format String.</li>
+                  <li><input type="checkbox" /> Test for incubated vulnerabilities.</li>
+                 <li><input type="checkbox" /> Test for HTTP Splitting/Smuggling.</li>
+                <li><input type="checkbox" /> Test for HTTP Verb Tampering.</li>
+                 <li><input type="checkbox" /> Test for Open Redirection.</li>
+                <li><input type="checkbox" /> Test for path traversal vulnerabilities.</li>
+                <li><input type="checkbox" /> Check for file inclusion flaws.</li>
+                <li><input type="checkbox" /> Attempt to include files from local system.</li>
+                 <li><input type="checkbox" /> Compare client-side and server-side validation rules.</li>
+                <li><input type="checkbox" /> Test for NoSQL injection.</li>
+                 <li><input type="checkbox" /> Test for HTTP parameter pollution.</li>
+                <li><input type="checkbox" /> Test for auto-binding.</li>
+                <li><input type="checkbox" /> Test for Mass Assignment.</li>
+                 <li><input type="checkbox" /> Test for NULL/Invalid Session Cookie.</li>
+            </ul>
+
+             <h3 id="denial-of-service">Denial of Service</h3>
+            <ul>
+                <li><input type="checkbox" /> Test for anti-automation.</li>
+                <li><input type="checkbox" /> Test for account lockout.</li>
+                <li><input type="checkbox" /> Test for HTTP protocol DoS.</li>
+                <li><input type="checkbox" /> Test for SQL wildcard DoS.</li>
+            </ul>
+
+
+            <h2 id="business-logic">Business Logic</h2>
+             <ul>
+                 <li><input type="checkbox" /> Test for feature misuse.</li>
+                <li><input type="checkbox" /> Test for lack of non-repudiation.</li>
+                <li><input type="checkbox" /> Test for trust relationships.</li>
+                 <li><input type="checkbox" /> Test for integrity of data.</li>
+                  <li><input type="checkbox" /> Test segregation of duties.</li>
+            </ul>
+
+            <h3 id="idor">Insecure Direct Object References</h3>
+            <ul>
+                <li><input type="checkbox" /> Test for IDOR vulnerabilities.</li>
+                <li><input type="checkbox" /> Attempt to access other users' resources.</li>
+                <li><input type="checkbox" /> Tamper parameters for unauthorized access.</li>
+            </ul>
+
+            <h3 id="rate-limiting">Rate Limiting Issues</h3>
+            <ul>
+                <li><input type="checkbox" /> Check rate limiting implementation.</li>
+                <li><input type="checkbox" /> Attempt to bypass rate limits.</li>
+                <li><input type="checkbox" /> Look for flooding possibilities.</li>
+            </ul>
+
+            <h3 id="payment-handling">Payment Handling Flaws</h3>
+            <ul>
+                <li><input type="checkbox" /> Test payment gateway integration.</li>
+                <li><input type="checkbox" /> Look for tampering possibilities of price or quantity.</li>
+                <li><input type="checkbox" /> Attempt to use invalid or tampered gift/discount codes.</li>
+            </ul>
+             <h2 id="cryptography">Cryptography</h2>
+            <ul>
+                <li><input type="checkbox" /> Check if data which should be encrypted is not.</li>
+                <li><input type="checkbox" /> Check for wrong algorithms usage depending on context.</li>
+                <li><input type="checkbox" /> Check for weak algorithms usage.</li>
+                <li><input type="checkbox" /> Check for proper use of salting.</li>
+                 <li><input type="checkbox" /> Check for randomness functions.</li>
+            </ul>
+              <h2 id="risky-functionality">Risky Functionality</h2>
+               <h3 id="file-uploads">File Uploads</h3>
+             <ul>
+                  <li><input type="checkbox" /> Test that acceptable file types are whitelisted.</li>
+                <li><input type="checkbox" /> Test that file size limits, upload frequency and total file counts are defined and are enforced.</li>
+                  <li><input type="checkbox" /> Test that file contents match the defined file type.</li>
+                   <li><input type="checkbox" /> Test that all file uploads have Anti-Virus scanning in-place.</li>
+                 <li><input type="checkbox" /> Test that unsafe filenames are sanitized.</li>
+                  <li><input type="checkbox" /> Test that uploaded files are not directly accessible within the web root.</li>
+                  <li><input type="checkbox" /> Test that uploaded files are not served on the same hostname/port.</li>
+                 <li><input type="checkbox" /> Test that files and other media are integrated with the authentication and authorization schemas.</li>
+                
+            </ul>
+              <h3 id="card-payment">Card Payment</h3>
+               <ul>
+                <li><input type="checkbox" /> Test for known vulnerabilities and configuration issues on Web Server and Web Application.</li>
+                  <li><input type="checkbox" /> Test for default or guessable password.</li>
+                   <li><input type="checkbox" /> Test for non-production data in live environment, and vice-versa.</li>
+                 <li><input type="checkbox" /> Test for Injection vulnerabilities.</li>
+                  <li><input type="checkbox" /> Test for Buffer Overflows.</li>
+                 <li><input type="checkbox" /> Test for Insecure Cryptographic Storage.</li>
+                  <li><input type="checkbox" /> Test for Insufficient Transport Layer Protection.</li>
+                 <li><input type="checkbox" /> Test for Improper Error Handling.</li>
+                <li><input type="checkbox" /> Test for all vulnerabilities with a CVSS v2 score > 4.0.</li>
+                 <li><input type="checkbox" /> Test for Authentication and Authorization issues.</li>
+                  <li><input type="checkbox" /> Test for CSRF.</li>
+                </ul>
+                 <h2 id="html5">HTML 5</h2>
+               <ul>
+                <li><input type="checkbox" /> Test Web Messaging.</li>
+                  <li><input type="checkbox" /> Test for Web Storage SQL injection.</li>
+                   <li><input type="checkbox" /> Check CORS implementation.</li>
+                 <li><input type="checkbox" /> Check Offline Web Application.</li>
+
+            </ul>
+             <h2 id="other-checks">Other Checks</h2>
+            <h3 id="security-headers">Security Headers</h3>
+            <ul>
+                <li><input type="checkbox" /> Check X-XSS-Protection header.</li>
+                <li><input type="checkbox" /> Check Strict-Transport-Security header.</li>
+                <li><input type="checkbox" /> Check Content-Security-Policy header.</li>
+                <li><input type="checkbox" /> Check Public-Key-Pins header.</li>
+                <li><input type="checkbox" /> Check X-Frame-Options header.</li>
+                <li><input type="checkbox" /> Check X-Content-Type-Options header.</li>
+                <li><input type="checkbox" /> Check Referer-Policy header.</li>
+                <li><input type="checkbox" /> Verify Cache-Control headers.</li>
+                <li><input type="checkbox" /> Check Expires headers.</li>
+            </ul>
+
+            <h3 id="captcha-handling">Captcha Handling</h3>
+            <ul>
+                <li><input type="checkbox" /> Send old captcha values.</li>
+                <li><input type="checkbox" /> Attempt to bypass captcha with various methods.</li>
+            </ul>
+             <h3 id="cors-bypass">CORS Bypass</h3>
+            <ul>
+                <li><input type="checkbox" /> Test for CORS misconfiguration vulnerabilities.</li>
+                <li><input type="checkbox" /> Identify CORS headers.</li>
+                <li><input type="checkbox" /> Check for bypass capabilities.</li>
+            </ul>
+
+            <h3 id="ssrf-testing">SSRF Testing</h3>
+            <ul>
+                <li><input type="checkbox" /> Identify possible server-side request forgery points.</li>
+                <li><input type="checkbox" /> Test different payloads for SSRF.</li>
+            </ul>
+            <h2 id="google-dorks">Google Dorks</h2>
+             <ul>
+                    <li><input type="checkbox" />  `inurl:example.com intitle:"index of"`</li>
+                    <li><input type="checkbox" />  `inurl:example.com intitle:"index of /" "*key.pem"`</li>
+                     <li><input type="checkbox" /> `inurl:example.com ext:log`</li>
+                     <li><input type="checkbox" /> `inurl:example.com intitle:"index of" ext:sql|xls|xml|json|csv`</li>
+                     <li><input type="checkbox" /> `inurl:example.com "MYSQL_ROOT_PASSWORD:" ext:env OR ext:yml -git`</li>
+                     <li><input type="checkbox" /> `inurl:example.com intitle:"index of" "config.db"`</li>
+                     <li><input type="checkbox" /> `inurl:example.com allintext:"API_SECRET*" ext:env | ext:yml`</li>
+                     <li><input type="checkbox" /> `inurl:example.com intext:admin ext:sql inurl:admin`</li>
+                     <li><input type="checkbox" /> `inurl:example.com allintext:username,password filetype:log`</li>
+                     <li><input type="checkbox" /> `site:example.com "-----BEGIN RSA PRIVATE KEY-----" - inurl:id_rsa`</li>
+                     <li><input type="checkbox" /> `site:codepad.co "keyword"`</li>
+                     <li><input type="checkbox" /> `site:scribd.com "keyword"`</li>
+                     <li><input type="checkbox" /> `site:npmjs.com "keyword"`</li>
+                     <li><input type="checkbox" /> `site:npm-runkit.com "keyword"`</li>
+                     <li><input type="checkbox" /> `site:libraries.io "keyword"`</li>
+                     <li><input type="checkbox" /> `site:ycombinator.io "keyword"`</li>
+                     <li><input type="checkbox" /> `site:coggle.it "keyword"`</li>
+                     <li><input type="checkbox" /> `site:papaly.com "keyword"`</li>
+                     <li><input type="checkbox" /> `site:google.com "keyword"`</li>
+                     <li><input type="checkbox" /> `site:trello.com "keyword"`</li>
+                     <li><input type="checkbox" /> `site:prezi.com "keyword"`</li>
+                     <li><input type="checkbox" /> `site:jsdelivr.net "keyword"`</li>
+                     <li><input type="checkbox" /> `site:codepen.io "keyword"`</li>
+                     <li><input type="checkbox" /> `site:codeshare.io "keyword"`</li>
+                     <li><input type="checkbox" /> `site:sharecode.io "keyword"`</li>  
+                     <li><input type="checkbox" /> `site:pastebin.com "keyword"`</li>
+                     <li><input type="checkbox" /> `site:repl.it "keyword"`</li>
+                     <li><input type="checkbox" /> `site:productforums.google.com "keyword"`</li>
+                     <li><input type="checkbox" /> `site:gitter.im "keyword"`</li>
+                     <li><input type="checkbox" /> `site:bitbucket.org "keyword"`</li>
+                     <li><input type="checkbox" /> `site:*atlassian.net "keyword"`</li>
+                     <li><input type="checkbox" /> `inurl:gitlab "keyword"`</li>
+                     <li><input type="checkbox" /> `inurl:github "keyword"`</li>
+                </ul>
+            <h2 id="scope">Scope</h2>
+              <h3 id="small-scope">Small Scope</h3>
+            <p>Only Specific URLs are part of Scope. This usually includes staging/dev/testing or single URLs.</p>
+               <ul>
+                  <li><input type="checkbox" /> Directory Enumeration</li>
+                  <li><input type="checkbox" /> Technology Fingerprinting</li>
+                  <li><input type="checkbox" /> Port Scanning</li>
+                  <li><input type="checkbox" /> Parameter Fuzzing</li>
+                  <li><input type="checkbox" /> Wayback History</li>
+                  <li><input type="checkbox" /> Known Vulnerabilities</li>
+                  <li><input type="checkbox" /> Hardcoded Information in JavaScript</li>
+                  <li><input type="checkbox" /> Domain Specific GitHub & Google Dorking</li>
+                  <li><input type="checkbox" /> Broken Link Hijacking</li>
+                  <li><input type="checkbox" /> Data Breach Analysis</li>
+                  <li><input type="checkbox" /> Misconfigured Cloud Storage</li>
+               </ul>
+            <h3 id="medium-scope">Medium Scope</h3>
+                <p>Usually the scope is wild card scope where all the subdomains are part of scope</p>
+               <ul>
+                  <li><input type="checkbox" /> Subdomain Enumeration</li>
+                  <li><input type="checkbox" /> Subdomain Takeover</li>
+                 <li><input type="checkbox" /> Probing & Technology Fingerprinting</li>
+                  <li><input type="checkbox" /> Port Scanning</li>
+                  <li><input type="checkbox" /> Known Vulnerabilities</li>
+                  <li><input type="checkbox" /> Template Based Scanning (Nuclei/Jeales)</li>
+                  <li><input type="checkbox" /> Misconfigured Cloud Storage</li>
+                  <li><input type="checkbox" /> Broken Link Hijacking</li>
+                   <li><input type="checkbox" /> Directory Enumeration</li>
+                  <li><input type="checkbox" /> Hardcoded Information in JavaScript</li>
+                  <li><input type="checkbox" /> GitHub Reconnaissance</li>
+                   <li><input type="checkbox" /> Google Dorking</li>
+                   <li><input type="checkbox" /> Data Breach Analysis</li>
+                  <li><input type="checkbox" /> Parameter Fuzzing</li>
+                  <li><input type="checkbox" /> Internet Search Engine Discovery (Shodan, Censys, Spyse, etc.)</li>
+                  <li><input type="checkbox" /> IP Range Enumeration (If in Scope)</li>
+                  <li><input type="checkbox" /> Wayback History</li>
+                  <li><input type="checkbox" /> Potential Pattern Extraction with GF and automating further for XSS, SSRF, etc.</li>
+                    <li><input type="checkbox" /> Heartbleed Scanning</li>
+                    <li><input type="checkbox" /> General Security Misconfiguration Scanning</li>
+
+               </ul>
+            <h3 id="large-scope">Large Scope</h3>
+                 <p>Everything related to the Organization is a part of Scope. This includes child companies, subdomains or any labelled asset owned by organization.</p>
+               <ul>
+                   <li><input type="checkbox" /> Tracking & Tracing every possible signatures of the Target Application (Often there might not be any history on Google related to a scope target, but you can still crawl it.) ​</li>
+                  <li><input type="checkbox" /> Subsidiary & Acquisition Enumeration (Depth – Max)​</li>
+                    <li><input type="checkbox" /> Reverse Lookup</li>
+                  <li><input type="checkbox" /> ASN & IP Space Enumeration and Service Identification​</li>
+                  <li><input type="checkbox" /> Subdomain Enumeration</li>
+                  <li><input type="checkbox" /> Subdomain Takeover</li>
+                 <li><input type="checkbox" /> Probing & Technology Fingerprinting</li>
+                  <li><input type="checkbox" /> Port Scanning</li>
+                   <li><input type="checkbox" /> Known Vulnerabilities</li>
+                  <li><input type="checkbox" /> Template Based Scanning (Nuclei/Jeales)</li>
+                  <li><input type="checkbox" /> Misconfigured Cloud Storage</li>
+                  <li><input type="checkbox" /> Broken Link Hijacking</li>
+                  <li><input type="checkbox" /> Directory Enumeration</li>
+                    <li><input type="checkbox" /> Hardcoded Information in JavaScript</li>
+                  <li><input type="checkbox" /> GitHub Reconnaissance</li>
+                  <li><input type="checkbox" /> Google Dorking</li>
+                   <li><input type="checkbox" /> Data Breach Analysis</li>
+                    <li><input type="checkbox" /> Parameter Fuzzing</li>
+                    <li><input type="checkbox" /> Internet Search Engine Discovery (Shodan, Censys, Spyse, etc.)</li>
+                    <li><input type="checkbox" /> IP Range Enumeration (If in Scope)</li>
+                   <li><input type="checkbox" /> Wayback History</li>
+                  <li><input type="checkbox" /> Potential Pattern Extraction with GF and automating further for XSS, SSRF, etc.</li>
+                   <li><input type="checkbox" /> Heartbleed Scanning</li>
+                   <li><input type="checkbox" /> General Security Misconfiguration Scanning</li>
+                    <li><input type="checkbox" /> And any possible Recon Vector (Network/Web) can be applied.​</li>
+
+               </ul>
+            <h2 id="shodan-dorks">Shodan Dorks</h2>
+            <h3 id="basic">Basic</h3>
+              <h4 id="city">City:</h4>
+              <p>Find devices in a particular city.</p>
+               <ul>
+                 <li><input type="checkbox" />`city:"Bangalore"`</li>
+               </ul>
+              <h4 id="country">Country:</h4>
+               <p>Find devices in a particular country.</p>
+                <ul>
+                    <li><input type="checkbox" /> `country:"IN"`</li>
+                </ul>
+              <h4 id="geo">Geo:</h4>
+               <p>Find devices by giving geographical coordinates.</p>
+               <ul>
+                  <li><input type="checkbox" /> `geo:"56.913055,118.250862"`</li>
+               </ul>
+              <h4 id="location">Location</h4>
+               <ul>
+                 <li><input type="checkbox" /> `country:us`</li>
+                 <li><input type="checkbox" /> `country:ru`</li>
+                   <li><input type="checkbox" /> `city:chicago`</li>
+                   <li><input type="checkbox" />`country:ru country:de city:chicago`</li>
+
+               </ul>
+
+              <h4 id="hostname">Hostname:</h4>
+              <p>Find devices matching the hostname.</p>
+               <ul>
+                  <li><input type="checkbox" /> `server: "google"`</li>
+                  
+<li><input type="checkbox" /> `hostname:example.com`</li>
+                  <li><input type="checkbox" /> `hostname:example.com,example.org`</li>
+               </ul>
+              <h4 id="net">Net:</h4>
+              <p>Find devices based on an IP address or /x CIDR.</p>
+               <ul>
+                  <li><input type="checkbox" /> `net:210.214.0.0/16`</li>
+               </ul>
+              <h4 id="organization">Organization</h4>
+               <ul>
+                  <li><input type="checkbox" />`org:microsoft`</li>
+                  <li><input type="checkbox" />`org:"United States Department"`</li>
+
+               </ul>
+
+              <h4 id="autonomous-system-number">Autonomous System Number (ASN)</h4>
+               <ul>
+                 <li><input type="checkbox" />`asn:ASxxxx`</li>
+               </ul>
+              <h4 id="operating-system">Operating System:</h4>
+              <ul>
+                 <li><input type="checkbox" />`os:"windows 7"`</li>
+              </ul>
+              <h4 id="port">Port:</h4>
+              <ul>
+                 <li><input type="checkbox" />`proftpd port:21`</li>
+              </ul>
+              <h4 id="before-after">Before/After:</h4>
+               <ul>
+                 <li><input type="checkbox" />`apache after:22/02/2009 before:14/3/2010`</li>
+               </ul>
+
+               <h4 id="ssl-tls-certificates">SSL/TLS Certificates</h4>
+               <ul>
+                 <li><input type="checkbox" />`ssl.cert.issuer.cn:example.com ssl.cert.subject.cn:example.com`</li>
+                  <li><input type="checkbox" />`ssl.cert.expired:true`</li>
+                  <li><input type="checkbox" />`ssl.cert.subject.cn:example.com`</li>
+               </ul>
+               <h4 id="device-type">Device Type</h4>
+               <ul>
+                 <li><input type="checkbox" />`device:firewall`</li>
+                 <li><input type="checkbox" />`device:router`</li>
+                 <li><input type="checkbox" />`device:wap`</li>
+                  <li><input type="checkbox" />`device:webcam`</li>
+                  <li><input type="checkbox" />`device:media`</li>
+                  <li><input type="checkbox" />`device:"broadband router"`</li>
+                   <li><input type="checkbox" />`device:pbx`</li>
+                   <li><input type="checkbox" />`device:printer`</li>
+                   <li><input type="checkbox" />`device:switch`</li>
+                   <li><input type="checkbox" />`device:storage`</li>
+                   <li><input type="checkbox" />`device:specialized`</li>
+                   <li><input type="checkbox" />`device:phone`</li>
+                   <li><input type="checkbox" />`device:"voip phone"`</li>
+                     <li><input type="checkbox" />`device:"voip adaptor"`</li>
+                      <li><input type="checkbox" />`device:"load balancer"`</li>
+                       <li><input type="checkbox" />`device:"print server"`</li>
+                        <li><input type="checkbox" />`device:terminal`</li>
+                        <li><input type="checkbox" />`device:remote`</li>
+                         <li><input type="checkbox" />`device:telecom`</li>
+                          <li><input type="checkbox" />`device:power`</li>
+                           <li><input type="checkbox" />`device:proxy`</li>
+                            <li><input type="checkbox" />`device:pda`</li>
+                             <li><input type="checkbox" />`device:bridge`</li>
+
+
+               </ul>
+
+
+
+               <h4 id="product">Product</h4>
+               <ul>
+                 <li><input type="checkbox" />`product:apache`</li>
+                 <li><input type="checkbox" />`product:nginx`</li>
+                   <li><input type="checkbox" />`product:android`</li>
+                   <li><input type="checkbox" />`product:chromecast`</li>
+
+               </ul>
+               <h4 id="cpe">Customer Premises Equipment (CPE)</h4>
+               <ul>
+                  <li><input type="checkbox" /> `cpe:apple`</li>
+                  <li><input type="checkbox" />`cpe:microsoft`</li>
+                   <li><input type="checkbox" />`cpe:nginx`</li>
+                   <li><input type="checkbox" />`cpe:cisco`</li>
+
+               </ul>
+               <h2 id="api-security">API Security</h2>
+<ul>
+    <li><input type="checkbox" /> To change versions: `api/v3/login` → `api/v1/login`</li>
+    <li><input type="checkbox" /> Check other AuthN endpoints: `/api/mobile/login` → `/api/v3/login` `/api/magic_link`</li>
+    <li><input type="checkbox" /> Verb Tampering: `GET /api/trips/1` → `POST /api/trips/1` `POST /api/trips` `DELETE /api/trips/1`</li>
+    <li><input type="checkbox" /> Try Object IDs in HTTP headers and bodies, URLs tend to be less vulnerable.</li>
+    <li><input type="checkbox" /> Try Numeric IDs when facing a GUID/UUID: `GET /api/users/6b95d962-df38` → `GET /api/users/1`</li>
+    <li><input type="checkbox" /> Wrap ID with an array: `{"id":111}` → `{"id":[111]}`</li>
+    <li><input type="checkbox" /> Wrap ID with a JSON object: `{"id":111}` → `{"id":{"id":111}}`</li>
+    <li><input type="checkbox" /> HTTP Parameter Pollution: `/api/profile?user_id=legit&user_id=victim` `/api/profile?user_id=victim&user_id=legit`</li>
+    <li><input type="checkbox" /> JSON Parameter Pollution: `{"user_id":legit,"user_id":victim}` `{"user_id":victim,"user_id":legit}`</li>
+    <li><input type="checkbox" /> Wildcard instead of ID: `/api/users/1` → `/api/users/*` `/api/users/%` `/api/users/_` `/api/users/.`</li>
+    <li><input type="checkbox" /> Ruby application HTTP parameter containing a URL → Pipe as the first character and then a shell command.</li>
+    <li><input type="checkbox" /> Developer APIs differs with mobile and web APIs. Test them separately.</li>
+    <li><input type="checkbox" /> Change Content-Type to `application/xml` and see if the API parse it.</li>
+    <li><input type="checkbox" /> Non-Production environments tend to be less secure (staging/qa/etc.) Leverage this fact to bypass AuthZ, AuthN, rate limiting & input validation.</li>
+    <li><input type="checkbox" /> Export Injection if you see `Convert to PDF` feature.</li>
+    <li><input type="checkbox" /> Expand your attack surface and test old versions of [APKs](https://apkpure.com) IPAs.</li>
+</ul>
+
+<h3>Misc</h3>
+<ul>
+    <li><input type="checkbox" /> Google Dorks</li>
+    <li>
+        <ul>
+            <li><input type="checkbox" /> `site:target.tld inurl:api`</li>
+            <li><input type="checkbox" /> `site:target.tld intitle:"index of" "api.yaml"`</li>
+            <li><input type="checkbox" /> `site:target.tld inurl:/application.wadl`</li>
+            <li><input type="checkbox" /> `site:target.tld ext:wsdl inurl:/%24metadata`</li>
+            <li><input type="checkbox" /> `site:target.tld ext:wadl`</li>
+            <li><input type="checkbox" /> `site:target.tld ext:wsdl`</li>
+            <li><input type="checkbox" /> `user filetype:wadl`</li>
+            <li><input type="checkbox" /> `user filetype:wsdl`</li>
+        </ul>
+    </li>
+    <li><input type="checkbox" /> Check different `Content-Types`</li>
+    <li>
+        <ul>
+            <li><input type="checkbox" /> `x-www-form-urlencoded --> user=test`</li>
+            <li><input type="checkbox" /> `application/json --> {"user": "test"}`</li>
+            <li><input type="checkbox" /> `application/xml --> <user>test</user>`</li>
+        </ul>
+    </li>
+    <li><input type="checkbox" /> If it's regular POST data try sending arrays, dictionaries</li>
+    <li>
+        <ul>
+            <li><input type="checkbox" /> `username[]=John`</li>
+            <li><input type="checkbox" /> `username[$neq]=lalala`</li>
+        </ul>
+    </li>
+    <li><input type="checkbox" /> If JSON is supported try to send unexpected data types</li>
+    <li>
+        <ul>
+            <li><input type="checkbox" /> `{"username": "John"}`</li>
+            <li><input type="checkbox" /> `{"username": true}`</li>
+            <li><input type="checkbox" /> `{"username": null}`</li>
+            <li><input type="checkbox" /> `{"username": 1}`</li>
+            <li><input type="checkbox" /> `{"username": [true]}`</li>
+            <li><input type="checkbox" /> `{"username": ["John", true]}`</li>
+            <li><input type="checkbox" /> `{"username": {"$neq": "lalala"}}`</li>
+        </ul>
+    </li>
+    <li><input type="checkbox" /> If XML is supported, check for XXE</li>
+</ul>
+
+<h3>References:</h3>
+<ul>
+    <li><a href="https://github.com/inonshk/31-days-of-API-Security-Tips">31 Days of API Security Tips</a></li>
+    <li><a href="https://book.hacktricks.xyz/pentesting/pentesting-web/api-pentesting">API Pentesting - HackTricks</a></li>
+</ul>
+                
+               <h4 id="server">Server</h4>
+               <ul>
+                  <li><input type="checkbox" /> `server: nginx`</li>
+                  <li><input type="checkbox" />`server: apache`</li>
+                   <li><input type="checkbox" />`server: microsoft`</li>
+                   <li><input type="checkbox" />`server: cisco-ios`</li>
+
+               </ul>
+               <h4 id="ssh-fingerprints">ssh fingerprints</h4>
+               <ul>
+                 <li><input type="checkbox" />`dc:14:de:8e:d7:c1:15:43:23:82:25:81:d2:59:e8:c0`</li>
+               </ul>
+             <h3 id="web">Web</h3>
+                  <h4 id="pulse-secure">Pulse Secure</h4>
+               <ul>
+                 <li><input type="checkbox" />`http.html:/dana-na`</li>
+               </ul>
+            <h4 id="pem-certificates">PEM Certificates</h4>
+               <ul>
+                 <li><input type="checkbox" />`http.title:"Index of /" http.html:".pem"`</li>
+               </ul>
+
+        </div>
+    </div>
+
+    <script>
+ const sidebarList = document.getElementById('sidebar-list');
+    const headings = document.querySelectorAll('#content h2, #content h3, #content h4');
+    const checklistHeader = document.querySelector('#sidebar #checklist-header');
+
+    if (checklistHeader) {
+        const listItem = document.createElement('li');
+        const link = document.createElement('a');
+        link.href = '#' + checklistHeader.id;
+        link.textContent = checklistHeader.textContent;
+        listItem.appendChild(link);
+        sidebarList.appendChild(listItem);
+    }
+
+
+    headings.forEach(heading => {
+        if (heading.id) {
+            const listItem = document.createElement('li');
+            const link = document.createElement('a');
+            link.href = '#' + heading.id;
+            link.textContent = heading.textContent;
+            listItem.appendChild(link);
+            sidebarList.appendChild(listItem);
+        }
+    });
+
+</script>
+<script>
+    const checkboxes = document.querySelectorAll('#content input[type="checkbox"]');
+    const progressBar = document.getElementById('progress-bar');
+    const totalCheckboxes = checkboxes.length;
+
+    function updateProgressBar() {
+        const checkedCheckboxes = document.querySelectorAll('#content input[type="checkbox"]:checked').length;
+        const progress = (checkedCheckboxes / totalCheckboxes) * 100;
+        progressBar.style.width = `${progress}%`;
+        progressBar.textContent = `${progress.toFixed(0)}%`;
+        console.log(`Checked: ${checkedCheckboxes}, Total: ${totalCheckboxes}`); // Logging here
+    }
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateProgressBar);
+    });
+    updateProgressBar();
+        </script>
+</body>
+</html>
